@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Printing Queue</string>
+    <string name="title_belanja">Belanja</string>
+    <string name="title_edukasi">Edukasi</string>
+    <string name="title_kategori">Kategori</string>
+    <string name="title_keranjang">Keranjang</string>
+    <string name="title_profil">Profil</string>
+    <string name="todo">TODO</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="informasi_login">Kamu belum bergabung, Ayo bergabung dengan kami dan login sekarang</string>
+    <string name="printing_team_2023">Printing Team | 2023</string>
+    <string name="daftar">Daftar</string>
+    <string name="masukkan_data_yang_diperlukan">Masukkan data yang diperlukan</string>
+    <string name="username">Username</string>
+    <string name="email">Email</string>
+    <string name="nomor_handphone">Nomor Handphone</string>
+    <string name="password">Password</string>
+    <string name="daftar_dengan_google">Daftar dengan google</string>
+    <string name="sudah_punya_akun_rupadi">Sudah punya akun Rupadi?</string>
+    <string name="login">Login</string>
+    <string name="masukkan_email_dan_password">Masukkan email dan password</string>
+    <string name="masuk">Masuk</string>
+    <string name="masuk_dengan_google">Masuk dengan google</string>
+    <string name="belum_punya_akun_rupadi">Belum punya akun Rupadi?</string>
+</resources>
