@@ -14,11 +14,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"
-        tools:targetApi="m">
+        android:usesCleartextTraffic="true">
         <activity
-            android:name=".SplashActivityt"
+            android:name=".activity.ProfilActivity"
             android:exported="true" />
+        <activity
+            android:name=".activity.InformasiActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activity.RiwayatBookingActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activity.BookingActivity"
+            android:exported="true" />
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".RegistrationActivity"
             android:exported="true" />
@@ -27,13 +44,7 @@
             android:exported="true" />
         <activity
             android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="true" />
     </application>
 
 </manifest>

@@ -1,14 +1,16 @@
-package com.rizal.antrianprinting;
+package com.rizal.antrianprinting.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class SplashActivityt extends AppCompatActivity {
+import com.rizal.antrianprinting.R;
+
+public class InformasiActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash_activityt);
+        setContentView(R.layout.activity_informasi);
     }
 }

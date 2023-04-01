@@ -23,4 +23,69 @@
     <string name="masuk">Masuk</string>
     <string name="masuk_dengan_google">Masuk dengan google</string>
     <string name="belum_punya_akun_rupadi">Belum punya akun Rupadi?</string>
+    <string name="jam_booking">Jam Booking</string>
+    <string name="_08_00">08:00</string>
+    <string name="jam_dilayani">Jam Dilayani</string>
+    <string name="_08_30">08:30</string>
+    <string name="riwayat_booking">Riwayat Booking</string>
+    <string name="informasi">Informasi</string>
+    <string name="booking">Booking</string>
+    <string name="profil_ku">Profil Ku</string>
+    <string name="keluar">Keluar</string>
+    <string name="ajukan_izin">Ajukan Izin</string>
+    <string name="tunggu_sebentar">Tunggu Sebentar…</string>
+    <string name="berhasil_login">Berhasil Login</string>
+    <string name="gagal_login">Gagal Login</string>
+    <string name="booking_pesanan">Booking Pesanan</string>
+    <string name="tanggal_pesanan">Pilih Tanggal Pesanan</string>
+    <string name="pilih_pelayanan">Pilih Pelayanan</string>
+    <string name="no_handphone_whatsapp">No Handphone / Whatsapp</string>
+    <string name="masukkan_jam_dilayani">Masukkan Jam Dilayani</string>
+    <string name="masukkan_jam_booking">Masukkan Jam Booking</string>
+    <string name="cek_ketersediaan">Cek Ketersediaan</string>
+    <string name="pilih_designer">Pilih Designer</string>
+    <string name="jam_antrian">Jam Antrian</string>
+    <string name="jam_selesai">Jam Selesai</string>
+    <string name="tidak_ada_antrian">Tidak ada antrian</string>
+    <string name="mengirim_data">Mengirim Data…</string>
+    <string name="yaaah_kamu_gagal_booking_silahkan_coba_lagi">Yaaah kamu gagal booking, silahkan coba lagi.</string>
+    <string name="horee_antrian_kamu_sudah_masuk_pantau_terus_yah_antrianmu">Horee antrian kamu sudah masuk, Pantau terus yah antrianmu.</string>
+    <string name="until">-</string>
+    <string name="_10_00_00">10:00:00</string>
+    <string name="_09_00_00">09:00:00</string>
+    <string name="jenis_layanan">Jenis Layanan</string>
+    <string name="headline_booking">Headline Booking</string>
+
+    <string-array name="pelayanan">
+        <item>Digital Print</item>
+        <item>Cetak Foto</item>
+        <item>Buat Stempel</item>
+        <item>Cetak X-Banner</item>
+        <item>Buat Sertifikat</item>
+        <item>Cetak Stiker</item>
+        <item>Cetak Buku Yasin</item>
+    </string-array>
+
+    <string-array name="jam_booking">
+        <item>08:00</item>
+        <item>09:00</item>
+        <item>10:00</item>
+        <item>11:00</item>
+        <item>13:00</item>
+        <item>14:00</item>
+        <item>15:00</item>
+        <item>16:00</item>
+    </string-array>
+
+    <string-array name="jam_selesai">
+        <item>09:00</item>
+        <item>10:00</item>
+        <item>11:00</item>
+        <item>13:00</item>
+        <item>14:00</item>
+        <item>15:00</item>
+        <item>16:00</item>
+        <item>17:00</item>
+    </string-array>
+
 </resources>

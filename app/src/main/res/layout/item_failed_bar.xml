@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/item_round_loading"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/margin_15"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_progress"
+            android:layout_width="@dimen/margin_35"
+            android:layout_height="@dimen/margin_35"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:contentDescription="@string/todo"
+            app:srcCompat="@drawable/ic_failed" />
+
+        <TextView
+            android:id="@+id/txt_message_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_marginTop="@dimen/margin_10"
+            android:fontFamily="@font/baloobhai_bold"
+            android:text="@string/yaaah_kamu_gagal_booking_silahkan_coba_lagi"
+            android:textColor="@color/black_sub"
+            android:textSize="@dimen/text_xNormal" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
