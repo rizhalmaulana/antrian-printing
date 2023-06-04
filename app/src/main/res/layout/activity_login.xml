@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_login"
     tools:context=".LoginActivity">
 
     <LinearLayout
@@ -43,7 +44,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/margin_10"
             android:layout_marginStart="@dimen/activity_vertical_margin"
             android:layout_marginEnd="@dimen/activity_vertical_margin"
             android:orientation="vertical">
@@ -86,7 +87,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginTop="@dimen/margin_20"
             android:layout_marginStart="@dimen/activity_vertical_margin"
             android:layout_marginEnd="@dimen/activity_vertical_margin"
             android:orientation="vertical">
@@ -94,8 +95,8 @@
             <Button
                 android:id="@+id/btn_masuk"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginBottom="10dp"
+                android:layout_height="@dimen/margin_40"
+                android:layout_marginBottom="@dimen/margin_5"
                 android:text="@string/masuk"
                 android:gravity="center_horizontal|center_vertical"
                 android:background="@drawable/button_save"
@@ -106,7 +107,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_google_login"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="@dimen/margin_50"
                 android:text="@string/masuk_dengan_google"
                 android:textColor="@color/red_pink"
                 android:fontFamily="@font/baloobhai_medium"
@@ -130,7 +131,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/baloobhai_regular"
-                android:text="@string/belum_punya_akun_rupadi"
+                android:text="@string/belum_punya_akun"
                 android:textColor="#181725"
                 android:textSize="16sp" />
 

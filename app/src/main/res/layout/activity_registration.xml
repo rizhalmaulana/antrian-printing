@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_login"
     tools:context=".RegistrationActivity">
 
     <LinearLayout
@@ -67,9 +68,26 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
+                android:hint="@string/nama_lengkap"
+                app:endIconMode="clear_text"
+                android:layout_marginTop="@dimen/margin_5"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_nama_daftar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
                 android:hint="@string/email"
                 app:endIconMode="clear_text"
-                android:layout_marginTop="@dimen/margin_10"
+                android:layout_marginTop="@dimen/margin_5"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -86,7 +104,7 @@
                 android:layout_width="match_parent"
                 android:hint="@string/nomor_handphone"
                 app:endIconMode="clear_text"
-                android:layout_marginTop="@dimen/margin_10"
+                android:layout_marginTop="@dimen/margin_5"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -102,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:hint="@string/password"
-                android:layout_marginTop="@dimen/margin_10"
+                android:layout_marginTop="@dimen/margin_5"
                 app:passwordToggleEnabled="true"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -115,12 +133,29 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:hint="@string/konfirmasi_password"
+                android:layout_marginTop="@dimen/margin_5"
+                app:passwordToggleEnabled="true"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_confirm_pass_daftar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:inputType="textPassword" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginTop="@dimen/margin_20"
             android:layout_marginStart="@dimen/activity_vertical_margin"
             android:layout_marginEnd="@dimen/activity_vertical_margin"
             android:orientation="vertical">
@@ -128,27 +163,14 @@
             <Button
                 android:id="@+id/btn_daftar"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginBottom="10dp"
+                android:layout_height="45dp"
+                android:layout_marginBottom="5dp"
                 android:text="@string/daftar"
                 android:gravity="center_horizontal|center_vertical"
                 android:background="@drawable/button_save"
                 android:textColor="@color/white"
                 android:fontFamily="@font/baloobhai_medium"
                 android:textSize="14sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_google_daftar"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="@string/daftar_dengan_google"
-                android:textColor="@color/red_pink"
-                android:fontFamily="@font/baloobhai_medium"
-                app:icon="@drawable/ic_google"
-                app:iconTint="@color/red_pink"
-                app:iconSize="24dp"
-                android:layout_marginBottom="@dimen/margin_5"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
         </LinearLayout>
 
@@ -164,7 +186,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/baloobhai_regular"
-                android:text="@string/sudah_punya_akun_rupadi"
+                android:text="@string/sudah_punya_akun"
                 android:textColor="#181725"
                 android:textSize="16sp" />
 
@@ -174,6 +196,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/baloobhai_regular"
                 android:text="@string/login"
+                android:layout_marginStart="@dimen/margin_5"
                 android:textColor="#53B175"
                 android:textSize="16sp" />
 

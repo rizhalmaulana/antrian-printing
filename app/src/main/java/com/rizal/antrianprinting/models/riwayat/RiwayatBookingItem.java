@@ -1,11 +1,11 @@
-package com.rizal.antrianprinting.models.antrian;
+package com.rizal.antrianprinting.models.riwayat;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Antrian {
+public class RiwayatBookingItem {
 
-    public Antrian() {
+    public RiwayatBookingItem() {
     }
 
     @Expose

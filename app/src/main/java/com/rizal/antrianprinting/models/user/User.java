@@ -12,6 +12,9 @@ public class User {
     @SerializedName("id")
     private int id;
     @Expose
+    @SerializedName("uid")
+    private String uid;
+    @Expose
     @SerializedName("username")
     private String username;
     @Expose
@@ -45,6 +48,14 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getUsername() {

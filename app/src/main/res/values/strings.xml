@@ -10,19 +10,19 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="informasi_login">Kamu belum bergabung, Ayo bergabung dengan kami dan login sekarang</string>
     <string name="printing_team_2023">Printing Team | 2023</string>
-    <string name="daftar">Daftar</string>
+    <string name="daftar">Daftar Yuk!</string>
     <string name="masukkan_data_yang_diperlukan">Masukkan data yang diperlukan</string>
     <string name="username">Username</string>
     <string name="email">Email</string>
     <string name="nomor_handphone">Nomor Handphone</string>
     <string name="password">Password</string>
     <string name="daftar_dengan_google">Daftar dengan google</string>
-    <string name="sudah_punya_akun_rupadi">Sudah punya akun Rupadi?</string>
+    <string name="sudah_punya_akun">Sudah punya akun?</string>
     <string name="login">Login</string>
     <string name="masukkan_email_dan_password">Masukkan email dan password</string>
     <string name="masuk">Masuk</string>
     <string name="masuk_dengan_google">Masuk dengan google</string>
-    <string name="belum_punya_akun_rupadi">Belum punya akun Rupadi?</string>
+    <string name="belum_punya_akun">Belum punya akun?</string>
     <string name="jam_booking">Jam Booking</string>
     <string name="_08_00">08:00</string>
     <string name="jam_dilayani">Jam Dilayani</string>
@@ -55,6 +55,9 @@
     <string name="_09_00_00">09:00:00</string>
     <string name="jenis_layanan">Jenis Layanan</string>
     <string name="headline_booking">Headline Booking</string>
+    <string name="channel_id">CHANNEL_ID</string>
+    <string name="konfirmasi_password">Konfirmasi Password</string>
+    <string name="nama_lengkap">Nama Lengkap</string>
 
     <string-array name="pelayanan">
         <item>Digital Print</item>

@@ -53,6 +53,11 @@ public class Preferences {
         return preferences.getString(key, "");
     }
 
+    public static void putInterval(Context context, String key, int value){
+        SharedPreferences.Editor editor = getEditor(context);
+        editor.putInt(key, value).commit();
+    }
+
     public static void putBoolean(Context context, String key, boolean value){
         SharedPreferences.Editor editor = getEditor(context);
         editor.putBoolean(key, value).commit();
@@ -61,6 +66,11 @@ public class Preferences {
     public static boolean getBoolean(Context context, String key){
         SharedPreferences preferences = context.getSharedPreferences(Static.MyPref, Context.MODE_PRIVATE);
         return preferences.getBoolean(key, false);
+    }
+
+    public static int getInt(Context context, String key){
+        SharedPreferences preferences = context.getSharedPreferences(Static.MyPref, Context.MODE_PRIVATE);
+        return preferences.getInt(key, 0);
     }
 
     public static void setLoginFlag(Context context, boolean flag){

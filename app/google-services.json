@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "627524827025",
+    "project_id": "antrian-printing",
+    "storage_bucket": "antrian-printing.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627524827025:android:747657efed35453ae50c30",
+        "android_client_info": {
+          "package_name": "com.rizal.antrianprinting"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "627524827025-vcsvng53jd3ghl343nsee16u3f90o74r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rizal.antrianprinting",
+            "certificate_hash": "8878cfb792298cf618c6621e832af1c46793095e"
+          }
+        },
+        {
+          "client_id": "627524827025-o32ua4ph3vo90mpcas8fv13i5j1foe23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChQFk59EeKGPNN8rwhuxhMqMU0gJCZ1ZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "627524827025-4lb1b9ut7hvc2bo08jhiu1hu9ftsfe76.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

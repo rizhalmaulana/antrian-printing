@@ -12,6 +12,11 @@ import android.widget.Toast;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.rizal.antrianprinting.activity.BookingActivity;
 import com.rizal.antrianprinting.activity.InformasiActivity;
@@ -25,14 +30,14 @@ import com.rizal.antrianprinting.utils.MobileService;
 import com.rizal.antrianprinting.utils.Preferences;
 import com.rizal.antrianprinting.utils.Responses;
 
-import java.util.Objects;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 
 public class MainActivity extends BaseActivity {
 
     boolean doubleBackToExitPress = false;
+    private FirebaseAuth firebaseAuth;
+    private GoogleSignInClient googleSignInClient;
 
     TextView jam_booking, jam_pelayanan;
     LinearLayout lr_booking, lr_riwayat, lr_informasi, lr_profil, lr_logout;
@@ -48,24 +53,25 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setViewId();
+        setUpData();
+        setOnClick();
+    }
+
+    private void setViewId() {
+        mobileService = ApiUtils.MobileService(getApplicationContext());
+
+        //Inisialisasi Firebase
+        firebaseAuth = FirebaseAuth.getInstance();
+        googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN);
+
+        user = Preferences.getUser(getApplicationContext());
+        antrian = Preferences.getAntrian(getApplicationContext());
 
         if (user == null) {
             Toast.makeText(this, "Silahkan login terlebih dahulu.", Toast.LENGTH_LONG).show();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
             finish();
         }
-
-        setUpData();
-        setOnClick();
-
-        Log.d("User login", "data: " + Objects.requireNonNull(Preferences.getUser(getApplicationContext())).getNama_lengkap());
-    }
-
-    private void setViewId() {
-        mobileService = ApiUtils.MobileService(getApplicationContext());
-
-        user = Preferences.getUser(getApplicationContext());
-        antrian = Preferences.getAntrian(getApplicationContext());
 
         jam_booking = findViewById(R.id.tv_home_jam_booking);
         jam_pelayanan = findViewById(R.id.tv_home_jam_pelayanan);
@@ -76,6 +82,24 @@ public class MainActivity extends BaseActivity {
         lr_profil = findViewById(R.id.lr_profil);
         lr_logout = findViewById(R.id.lr_logout);
         lr_refresh = findViewById(R.id.layout_refresh_utama);
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        String deviceToken = task.getResult();
+                        Log.d("Firebase Device Token", "token: " + deviceToken);
+                    }
+                });
+
+        Intent intent = getIntent();
+        String clickAction = intent.getStringExtra("click_action");
+
+        if (clickAction != null) {
+            if (clickAction.equals("OPEN_ACTIVITY_1")) {
+                Intent activity1 = new Intent(this, RiwayatBookingActivity.class);
+                startActivity(activity1);
+            }
+        }
     }
 
     private void setOnClick() {
@@ -145,7 +169,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void showDialogLogout() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getApplicationContext());
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
         alertDialogBuilder
                 .setTitle("Konfirmasi")
@@ -154,16 +178,31 @@ public class MainActivity extends BaseActivity {
                 .setIcon(R.drawable.ic_logout)
                 .setCancelable(false)
                 .setPositiveButton("Keluar", (dialogInterface, i) -> {
-                    Intent logout = new Intent(getApplicationContext(), LoginActivity.class);
-                    Preferences.setUser(getApplicationContext(), null);
-                    startActivity(logout);
+                    signOutAccount();
 
+                    Preferences.setUser(getApplicationContext(), null);
+                    Preferences.setLoginFlag(getApplicationContext(), false);
+
+                    Intent keluar = new Intent(getApplicationContext(), LoginActivity.class);
+
+                    startActivity(keluar);
                     this.finish();
                 })
                 .setNegativeButton("Batal", (dialog, which) -> dialog.cancel());
 
         AlertDialog alertDialog = alertDialogBuilder.create();
+
+        if (alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
+
         alertDialog.show();
+    }
+
+    private void signOutAccount() {
+        googleSignInClient.signOut()
+                .addOnSuccessListener(this, aVoid -> Log.d("Logout Account", "Sign out success"))
+                .addOnFailureListener(this, e -> Log.e("Logout Account", "Sign out failed", e));
     }
 
     private void showProgressDialog() {

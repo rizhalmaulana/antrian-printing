@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,9 +23,12 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.rizal.antrianprinting.MainActivity;
 import com.rizal.antrianprinting.R;
 import com.rizal.antrianprinting.base.BaseActivity;
+import com.rizal.antrianprinting.models.antrian.AntrianResponses;
 import com.rizal.antrianprinting.models.designer.DesignerItem;
 import com.rizal.antrianprinting.models.designer.DesignerResponse;
 import com.rizal.antrianprinting.models.layanan.LayananItem;
@@ -54,12 +58,18 @@ import retrofit2.Response;
 
 public class BookingActivity extends BaseActivity {
 
-    ImageView back_booking, close_sheet, icon_sheet;
+    private final ArrayList<String> listWaktuBooking = new ArrayList<>();
+    private final ArrayList<String> listWaktuSelesai = new ArrayList<>();
+    private final ArrayList<String> listDesigner = new ArrayList<>();
+    private final ArrayList<String> listLayanan = new ArrayList<>();
+
+    LinearLayout layout_back;
+    ImageView close_sheet, icon_sheet;
     AutoCompleteTextView pilih_jam_booking, pilih_jam_selesai, pilih_designer, pilih_layanan;
     TextInputEditText input_nomor_whatsapp;
     Button cek_antrian, input_tanggal_pesanan;
     ProgressDialog progress_dialog;
-    MobileService mobile_service;
+    MobileService mobile_service, fcm_service;
     View bottom_sheet;
     MaterialButton action_positif, action_negatif;
     BottomSheetDialog bottomSheetDialog;
@@ -68,10 +78,11 @@ public class BookingActivity extends BaseActivity {
 
     private String pick_tanggal = "";
 
-    private final ArrayList<String> listWaktuBooking = new ArrayList<>();
-    private final ArrayList<String> listWaktuSelesai = new ArrayList<>();
-    private final ArrayList<String> listDesigner = new ArrayList<>();
-    private final ArrayList<String> listLayanan = new ArrayList<>();
+    public static final String TAG = "BookingActivity";
+    public static final String TOPIC = "all_user";
+
+    public static final String NOTIFICATION_CHANNEL_ID = "10001";
+    private final static String default_notification_channel_id = "default";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +90,7 @@ public class BookingActivity extends BaseActivity {
         setContentView(R.layout.activity_booking);
 
         mobile_service = ApiUtils.MobileService(getApplicationContext());
+        fcm_service = ApiUtils.FCMService(getApplicationContext());
         user = Preferences.getUser(getApplicationContext());
 
         bottomSheetDialog = new BottomSheetDialog(BookingActivity.this, R.style.BottomSheetDialogTheme);
@@ -91,7 +103,7 @@ public class BookingActivity extends BaseActivity {
         action_positif = bottom_sheet.findViewById(R.id.btn_bottom_action_positif);
         action_negatif = bottom_sheet.findViewById(R.id.btn_bottom_action_negatif);
 
-        back_booking = findViewById(R.id.iv_back_booking);
+        layout_back = findViewById(R.id.lr_back_booking);
         pilih_jam_booking = findViewById(R.id.et_pilih_jam_booking);
         pilih_jam_selesai = findViewById(R.id.et_pilih_jam_selesai);
         pilih_designer = findViewById(R.id.et_pilih_designer);
@@ -101,6 +113,7 @@ public class BookingActivity extends BaseActivity {
         cek_antrian = findViewById(R.id.btn_ketersediaan_booking);
 
         setupDataAntrian();
+        configureMessage();
 
         CalendarConstraints.Builder calendarConstraintBuilder = new CalendarConstraints.Builder();
         calendarConstraintBuilder.setValidator(DateValidatorPointForward.now());
@@ -116,7 +129,6 @@ public class BookingActivity extends BaseActivity {
 
         pilih_jam_booking.setOnItemClickListener((adapterView, view, i, l) -> Log.d("Selected item", pilih_jam_booking.getText().toString()));
         pilih_jam_selesai.setOnItemClickListener((adapterView, view, i, l) -> Log.d("Selected item", pilih_jam_selesai.getText().toString()));
-
         pilih_designer.setOnItemClickListener((adapterView, view, i, l) -> Log.d("Selected item", pilih_designer.getText().toString()));
         pilih_layanan.setOnItemClickListener((adapterView, view, i, l) -> Log.d("Selected item", pilih_layanan.getText().toString()));
 
@@ -138,10 +150,11 @@ public class BookingActivity extends BaseActivity {
             input_tanggal_pesanan.setText(materialDatePicker.getHeaderText());
         });
 
-        back_booking.setOnClickListener(v -> {
+        layout_back.setOnClickListener(v -> {
             startActivity(new Intent(BookingActivity.this, MainActivity.class));
             finish();
         });
+
         cek_antrian.setOnClickListener(v -> cekAntrianTersedia());
     }
 
@@ -243,16 +256,18 @@ public class BookingActivity extends BaseActivity {
 
         showSubmitDialog();
 
-        mobile_service.createantrian(map).enqueue(new Callback<Responses>() {
+        mobile_service.createantrian(map).enqueue(new Callback<AntrianResponses>() {
             @Override
-            public void onResponse(Call<Responses> call, Response<Responses> response) {
-                Responses body = response.body();
+            public void onResponse(Call<AntrianResponses> call, Response<AntrianResponses> response) {
+                AntrianResponses body = response.body();
                 Log.d("Get Error Response", "onResponse: " + response.errorBody());
                 if (response.isSuccessful()) {
                     assert body != null;
                     if (!body.isStatus() && body.getCode() != 200) {
                         showBottomSheetBooking("Informasi", body.getMessage(), R.drawable.ic_profil_user, "Oke", "Kembali", body.getCode());
                     } else {
+//                        sendNotification();
+                        sendPushNotification("title", "body");
                         showBottomSheetBooking("Berhasil", body.getMessage(), R.drawable.ic_location, "Mengerti", "", body.getCode());
                     }
                 } else {
@@ -263,13 +278,19 @@ public class BookingActivity extends BaseActivity {
             }
 
             @Override
-            public void onFailure(Call<Responses> call, Throwable t) {
+            public void onFailure(Call<AntrianResponses> call, Throwable t) {
                 dismissProgressDialog();
                 Log.d("Get error message", "onError: " + t.getMessage());
 
                 Toast.makeText(getApplicationContext(), "Terjadi kesalahan, periksa koneksi anda!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void sendPushNotification(String title, String body) {
+        Map<String, String> map = new HashMap<>();
+        map.put("title", title);
+        map.put("body", body);
     }
 
     private void setupDataAntrian() {
@@ -459,6 +480,74 @@ public class BookingActivity extends BaseActivity {
         });
     }
 
+    private void configureMessage() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            FirebaseAuth.getInstance()
+                    .signInAnonymously()
+                    .addOnSuccessListener(authResult -> FirebaseMessaging.getInstance()
+                            .subscribeToTopic("All"));
+        } else {
+            FirebaseMessaging.getInstance().subscribeToTopic(TOPIC);
+        }
+    }
+
+//    private void sendNotification() {
+//        fcm_service.sendNotification(new NotificationItem(new NotificationData(title, msg), DIRECTION_TO))
+//                .enqueue(new Callback<NotificationData>() {
+//                    @Override
+//                    public void onResponse(Call<NotificationData> call, Response<NotificationData> response) {
+//                        if (response.isSuccessful()) {
+//                            Toast.makeText(BookingActivity.this, "Notifikasi Testing Terkirim", Toast.LENGTH_SHORT).show();
+//                        } else {
+//                            Toast.makeText(BookingActivity.this, "Notifikasi Testing Gagal Terkirim", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<NotificationData> call, Throwable t) {
+//                        Toast.makeText(BookingActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//    }
+
+//    private void scheduleNotification(Notification notification, int delay) {
+//        Intent notificationIntent = new Intent(this, MyNotificationPublisher.class);
+//        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION_ID, 1);
+//        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification);
+//
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        long futureInMillis = SystemClock.elapsedRealtime() + delay;
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//        assert alarmManager != null;
+//        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
+//    }
+
+//    private Notification getNotification(String content) {
+//        Intent intent = new Intent(this, RiwayatBookingActivity.class);
+//
+//        PendingIntent pendingIntent = null;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent,
+//                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+//        } else {
+//            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        }
+//
+//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, default_notification_channel_id);
+//
+//        builder.setVibrate(new long[]{0, 100})
+//                .setPriority(Notification.PRIORITY_MAX)
+//                .setContentTitle("Pengingat Antrian Kamu")
+//                .setContentText(content)
+//                .setSmallIcon(R.drawable.ic_launcher_foreground)
+//                .setAutoCancel(true)
+//                .setOnlyAlertOnce(true)
+//                .setContentIntent(pendingIntent)
+//                .setChannelId(NOTIFICATION_CHANNEL_ID);
+//
+//        return builder.build();
+//    }
+
     private void initializeData() {
         initializeWaktuBooking();
         initializeWaktuSelesai();
@@ -530,6 +619,7 @@ public class BookingActivity extends BaseActivity {
 
                 startActivity(new Intent(BookingActivity.this, RiwayatBookingActivity.class));
                 finish();
+
             } else {
                 bottomSheetDialog.dismiss();
             }
