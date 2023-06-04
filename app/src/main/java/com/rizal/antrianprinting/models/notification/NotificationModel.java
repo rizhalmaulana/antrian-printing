@@ -1,38 +1,11 @@
 package com.rizal.antrianprinting.models.notification;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
 public class NotificationModel {
-    @SerializedName("id_user")
-    @Expose
-    private Integer idUser;
-    @SerializedName("title")
-    @Expose
-    private String title;
-    @SerializedName("body")
-    @Expose
-    private String body;
-    @SerializedName("type")
-    @Expose
-    private String type;
-    @SerializedName("created_at")
-    @Expose
-    private String createdAt;
-    @SerializedName("updated_at")
-    @Expose
-    private String updatedAt;
-    @SerializedName("id")
-    @Expose
-    private Integer id;
-
-    public Integer getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(Integer idUser) {
-        this.idUser = idUser;
-    }
+    String title;
+    String message;
+    String image;
+    String action;
+    String action_destination;
 
     public String getTitle() {
         return title;
@@ -42,43 +15,36 @@ public class NotificationModel {
         this.title = title;
     }
 
-    public String getBody() {
-        return body;
+    public String getMessage() {
+        return message;
     }
 
-    public void setBody(String body) {
-        this.body = body;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    public String getType() {
-        return type;
+    public String getImage() {
+        return image;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setImage(String image) {
+        this.image = image;
     }
 
-    public String getCreatedAt() {
-        return createdAt;
+    public String getAction() {
+        return action;
     }
 
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
+    public void setAction(String action) {
+        this.action = action;
     }
 
-    public String getUpdatedAt() {
-        return updatedAt;
+    public String getAction_destination() {
+        return action_destination;
     }
 
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setAction_destination(String action_destination) {
+        this.action_destination = action_destination;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 }

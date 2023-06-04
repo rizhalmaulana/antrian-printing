@@ -58,6 +58,7 @@
     <string name="channel_id">CHANNEL_ID</string>
     <string name="konfirmasi_password">Konfirmasi Password</string>
     <string name="nama_lengkap">Nama Lengkap</string>
+    <string name="_00_00_00">00:00:00</string>
 
     <string-array name="pelayanan">
         <item>Digital Print</item>

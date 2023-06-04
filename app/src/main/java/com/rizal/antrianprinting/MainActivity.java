@@ -1,9 +1,11 @@
 package com.rizal.antrianprinting;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.LinearLayout;
@@ -30,6 +32,8 @@ import com.rizal.antrianprinting.utils.MobileService;
 import com.rizal.antrianprinting.utils.Preferences;
 import com.rizal.antrianprinting.utils.Responses;
 
+import java.util.Locale;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -39,7 +43,10 @@ public class MainActivity extends BaseActivity {
     private FirebaseAuth firebaseAuth;
     private GoogleSignInClient googleSignInClient;
 
-    TextView jam_booking, jam_pelayanan;
+    private CountDownTimer countDownTimer;
+    private boolean isTimerRunning = false;
+
+    TextView jam_booking, jam_pelayanan, countdown_service;
     LinearLayout lr_booking, lr_riwayat, lr_informasi, lr_profil, lr_logout;
     SwipeRefreshLayout lr_refresh;
     MobileService mobileService;
@@ -73,6 +80,7 @@ public class MainActivity extends BaseActivity {
             finish();
         }
 
+        countdown_service = findViewById(R.id.tv_countdown_service);
         jam_booking = findViewById(R.id.tv_home_jam_booking);
         jam_pelayanan = findViewById(R.id.tv_home_jam_pelayanan);
 
@@ -83,23 +91,18 @@ public class MainActivity extends BaseActivity {
         lr_logout = findViewById(R.id.lr_logout);
         lr_refresh = findViewById(R.id.layout_refresh_utama);
 
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        String deviceToken = task.getResult();
-                        Log.d("Firebase Device Token", "token: " + deviceToken);
-                    }
-                });
-
-        Intent intent = getIntent();
-        String clickAction = intent.getStringExtra("click_action");
-
-        if (clickAction != null) {
-            if (clickAction.equals("OPEN_ACTIVITY_1")) {
-                Intent activity1 = new Intent(this, RiwayatBookingActivity.class);
-                startActivity(activity1);
+        FirebaseMessaging.getInstance().subscribeToTopic("all_user").addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.e("MainActivity", String.valueOf(task));
             }
-        }
+        });
+
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                final String token = task.getResult();
+                Log.e("MainActivity", token);
+            }
+        });
     }
 
     private void setOnClick() {
@@ -130,6 +133,7 @@ public class MainActivity extends BaseActivity {
 
                             jam_booking.setText(R.string.tidak_ada_antrian);
                             jam_pelayanan.setText(R.string.tidak_ada_antrian);
+                            countdown_service.setText(R.string._00_00_00);
 
                             Preferences.setBookingFlag(getApplicationContext(), false);
                             lr_refresh.setRefreshing(false);
@@ -139,6 +143,7 @@ public class MainActivity extends BaseActivity {
 
                         jam_booking.setText(antrianResponse.getJam_booking());
                         jam_pelayanan.setText(antrianResponse.getJam_selesai());
+                        startCountDown(isTimerRunning);
 
                         Preferences.setBookingFlag(getApplicationContext(), true);
                         lr_refresh.setRefreshing(false);
@@ -166,6 +171,39 @@ public class MainActivity extends BaseActivity {
                 lr_refresh.setRefreshing(false);
             }
         });
+    }
+
+    private void startCountDown(boolean isTimerRunning) {
+        if (!isTimerRunning) {
+            countDownTimer = new CountDownTimer(30000, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    // This method will be called every second during the countdown
+                    long totalSeconds = millisUntilFinished / 1000;
+
+                    long hours = totalSeconds / 3600;
+                    long minutes = (totalSeconds % 3600) / 60;
+                    long seconds = totalSeconds % 60;
+
+                    String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
+
+                    // Update the UI with the remaining time
+                    countdown_service.setText(timeLeftFormatted);
+                }
+
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void onFinish() {
+                    MainActivity.this.isTimerRunning = false;
+                    countdown_service.setText("Countdown finished!");
+                }
+            };
+
+            countDownTimer.start();
+            this.isTimerRunning = true;
+        } else {
+            Toast.makeText(getApplicationContext(), "Countdown sedang berlangsung.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showDialogLogout() {
@@ -230,5 +268,12 @@ public class MainActivity extends BaseActivity {
         Toast.makeText(this, "Tekan sekali lagi untuk keluar", Toast.LENGTH_SHORT).show();
 
         new Handler().postDelayed(() -> doubleBackToExitPress = false, 2000);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        setUpData();
     }
 }

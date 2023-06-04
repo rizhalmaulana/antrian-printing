@@ -55,7 +55,7 @@
                         android:gravity="center_vertical|center_horizontal"
                         android:hint="@string/_08_00"
                         android:textColor="@color/black_main"
-                        android:textSize="@dimen/text_xxNormal" />
+                        android:textSize="@dimen/text_normal" />
 
                 </LinearLayout>
 
@@ -83,9 +83,37 @@
                         android:gravity="center_vertical|center_horizontal"
                         android:hint="@string/_08_30"
                         android:textColor="@color/black_main"
-                        android:textSize="@dimen/text_xxNormal" />
+                        android:textSize="@dimen/text_normal" />
 
                 </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal|center_vertical"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/baloobhai_medium"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:textColor="@color/black_main"
+                    android:textSize="@dimen/text_normal"
+                    android:text="Waktu Pengingat" />
+
+                <TextView
+                    android:id="@+id/tv_countdown_service"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/baloobhaijan"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:hint="@string/_00_00_00"
+                    android:textColor="@color/black_main"
+                    android:textSize="@dimen/text_normal" />
 
             </LinearLayout>
 

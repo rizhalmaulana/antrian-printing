@@ -3,7 +3,7 @@ package com.rizal.antrianprinting.utils;
 public class Static {
     public final static String MyPref = "my_pref";
 
-    public final static String LOCALURL = "http://192.168.60.228:8081";
+    public final static String LOCALURL = "http://192.168.60.228:8080";
 
     // FCM URL
     public final static String URL_FCM = "https://fcm.googleapis.com";
