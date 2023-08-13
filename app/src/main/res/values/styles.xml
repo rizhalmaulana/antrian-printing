@@ -10,21 +10,25 @@
         <item name="android:fontFamily">@font/baloobhaijan</item>
         <item name="android:textSize">96sp</item>
     </style>
+
     <style name="TextAppearance.MdcTypographyStyles.Headline2" parent="TextAppearance.MaterialComponents.Headline2">
         <item name="fontFamily">@font/baloobhaijan</item>
         <item name="android:fontFamily">@font/baloobhaijan</item>
         <item name="android:textSize">60sp</item>
     </style>
+
     <style name="TextAppearance.MdcTypographyStyles.Headline3" parent="TextAppearance.MaterialComponents.Headline3">
         <item name="fontFamily">@font/baloobhaijan</item>
         <item name="android:fontFamily">@font/baloobhaijan</item>
         <item name="android:textSize">48sp</item>
     </style>
+
     <style name="TextAppearance.MdcTypographyStyles.Headline4" parent="TextAppearance.MaterialComponents.Headline4">
         <item name="fontFamily">@font/baloobhai_medium</item>
         <item name="android:fontFamily">@font/baloobhai_medium</item>
         <item name="android:textSize">34sp</item>
     </style>
+
     <style name="TextAppearance.MdcTypographyStyles.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
         <item name="fontFamily">@font/baloobhai_medium</item>
         <item name="android:fontFamily">@font/baloobhai_medium</item>
@@ -40,6 +44,7 @@
         <item name="android:fontFamily">@font/baloobhai_medium</item>
         <item name="android:textSize">16sp</item>
     </style>
+
     <style name="TextAppearance.MdcTypographyStyles.Subtitle2" parent="TextAppearance.MaterialComponents.Subtitle2">
         <item name="fontFamily">@font/baloobhai_medium</item>
         <item name="android:fontFamily">@font/baloobhai_medium</item>
@@ -70,9 +75,11 @@
         <item name="android:fontFamily">@font/baloobhai_medium</item>
         <item name="android:textSize">10sp</item>
     </style>
+
     <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
     </style>
+
     <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
     </style>

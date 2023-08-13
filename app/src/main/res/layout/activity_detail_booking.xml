@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.DetailBookingActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/white"
+        android:padding="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/margin_30"
+            android:layout_toEndOf="@id/img_kembali_detail"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_title_detail_belanja"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/baloobhaijan"
+                android:gravity="start"
+                android:text="@string/detail_booking"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="@dimen/text_normal" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/img_kembali_detail"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="18dp"
+            android:contentDescription="@string/todo"
+            app:srcCompat="@drawable/ic_back_arrow" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/layoutHeadline">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/layout_kategori_wrapper_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/spacer_normal"
+                android:layout_marginTop="@dimen/spacer_small"
+                android:layout_marginEnd="@dimen/spacer_normal"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/card"
+                    app:cardCornerRadius="8dp">
+
+                    <ImageView
+                        android:id="@+id/imgDetailBelanja"
+                        android:layout_width="wrap_content"
+                        android:layout_height="180dp"
+                        android:layout_gravity="center"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/background_booking"
+                        android:contentDescription="@string/todo" />
+
+                </androidx.cardview.widget.CardView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textNamaDesigner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacer_normal"
+                        android:fontFamily="@font/baloobhai_medium"
+                        android:text="@string/nama_designer"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="@dimen/text_normal" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textWaktuBooking"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/baloobhai_regular"
+                            android:text="@string/_09_00_00"
+                            android:textColor="@color/black_sub"
+                            android:textSize="@dimen/text_normal" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/baloobhai_regular"
+                            android:text="@string/split"
+                            android:textColor="@color/black_sub"
+                            android:textSize="@dimen/text_normal" />
+
+                        <TextView
+                            android:id="@+id/textWaktuSelesai"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/baloobhai_regular"
+                            android:text="@string/_10_00_00"
+                            android:textColor="@color/black_sub"
+                            android:textSize="@dimen/text_normal" />
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="@dimen/spacer_normal"
+                    android:background="#E0E0E0"
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacer_normal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/baloobhai_medium"
+                        android:text="@string/keterangan"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="@dimen/text_normal" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/baloobhai_regular"
+                            android:layout_marginEnd="@dimen/margin_10"
+                            android:text="@string/jenis_layanan"
+                            android:textColor="@color/black_sub"
+                            android:textSize="@dimen/text_normal" />
+
+                        <TextView
+                            android:id="@+id/textJenisLayanan"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/baloobhai_medium"
+                            android:hint="@string/cetak_banner"
+                            android:textColor="@color/black_main"
+                            android:textSize="@dimen/text_normal" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/baloobhai_regular"
+                            android:layout_marginEnd="@dimen/margin_10"
+                            android:text="@string/tanggal_pesanan_"
+                            android:textColor="@color/black_sub"
+                            android:textSize="@dimen/text_normal" />
+
+                        <TextView
+                            android:id="@+id/textTanggalPesanan"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/baloobhai_medium"
+                            android:hint="@string/_29_07_2023"
+                            android:textColor="@color/black_main"
+                            android:textSize="@dimen/text_normal" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/baloobhai_regular"
+                            android:layout_marginEnd="@dimen/margin_10"
+                            android:text="@string/no_handphone"
+                            android:textColor="@color/black_sub"
+                            android:textSize="@dimen/text_normal" />
+
+                        <TextView
+                            android:id="@+id/textNoHandphone"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/baloobhai_medium"
+                            android:hint="@string/_08211315315135"
+                            android:textColor="@color/black_main"
+                            android:textSize="@dimen/text_normal" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="@dimen/spacer_normal"
+                    android:background="#E0E0E0"
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacer_normal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/baloobhai_medium"
+                        android:text="@string/status"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="@dimen/text_normal" />
+
+                    <TextView
+                        android:id="@+id/textStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/baloobhai_semibold"
+                        android:text="@string/menunggu"
+                        android:textColor="@color/yellow"
+                        android:textSize="@dimen/text_normal" />
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnCancelBooking"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/batal_antrian"
+                    android:layout_marginTop="@dimen/margin_35"
+                    android:gravity="center_horizontal|center_vertical"
+                    android:backgroundTint="@color/red_pink"
+                    android:fontFamily="@font/baloobhai_medium"
+                    android:textSize="@dimen/text_xNormal" />
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </RelativeLayout>
+
+</LinearLayout>

@@ -22,6 +22,7 @@
             android:id="@+id/linear_board_jam"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center_vertical"
             android:gravity="center_vertical|center_horizontal"
             android:orientation="vertical"
             android:padding="10dp">
@@ -29,10 +30,12 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:gravity="center_vertical|center_horizontal"
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="180dp"
+                    android:layout_width="165dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:gravity="center"
@@ -55,12 +58,12 @@
                         android:gravity="center_vertical|center_horizontal"
                         android:hint="@string/_08_00"
                         android:textColor="@color/black_main"
-                        android:textSize="@dimen/text_normal" />
+                        android:textSize="@dimen/text_xNormal" />
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="175dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:gravity="center"
@@ -73,7 +76,7 @@
                         android:gravity="center_vertical|center_horizontal"
                         android:textColor="@color/black_main"
                         android:textSize="@dimen/text_normal"
-                        android:text="@string/jam_dilayani" />
+                        android:text="@string/jam_selesai" />
 
                     <TextView
                         android:id="@+id/tv_home_jam_pelayanan"
@@ -83,37 +86,9 @@
                         android:gravity="center_vertical|center_horizontal"
                         android:hint="@string/_08_30"
                         android:textColor="@color/black_main"
-                        android:textSize="@dimen/text_normal" />
+                        android:textSize="@dimen/text_xNormal" />
 
                 </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal|center_vertical"
-                android:layout_marginTop="20dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/baloobhai_medium"
-                    android:gravity="center_vertical|center_horizontal"
-                    android:textColor="@color/black_main"
-                    android:textSize="@dimen/text_normal"
-                    android:text="Waktu Pengingat" />
-
-                <TextView
-                    android:id="@+id/tv_countdown_service"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/baloobhaijan"
-                    android:gravity="center_vertical|center_horizontal"
-                    android:hint="@string/_00_00_00"
-                    android:textColor="@color/black_main"
-                    android:textSize="@dimen/text_normal" />
 
             </LinearLayout>
 

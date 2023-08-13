@@ -1,13 +1,11 @@
 package com.rizal.antrianprinting.models.antrian;
 
-import java.util.ArrayList;
-
 public class AntrianResponses {
     boolean status;
     Integer code;
-    Object data;
+    Antrian data;
+    AntrianFlagging time;
     String message;
-    ArrayList<TimeScheduleItem> time_schedule;
 
     public boolean isStatus() {
         return status;
@@ -25,12 +23,20 @@ public class AntrianResponses {
         this.code = code;
     }
 
-    public Object getData() {
+    public Antrian getData() {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(Antrian data) {
         this.data = data;
+    }
+
+    public AntrianFlagging getTime() {
+        return time;
+    }
+
+    public void setTime(AntrianFlagging time) {
+        this.time = time;
     }
 
     public String getMessage() {
@@ -39,13 +45,5 @@ public class AntrianResponses {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public ArrayList<TimeScheduleItem> getTime_schedule() {
-        return time_schedule;
-    }
-
-    public void setTime_schedule(ArrayList<TimeScheduleItem> time_schedule) {
-        this.time_schedule = time_schedule;
     }
 }

@@ -18,6 +18,7 @@
             android:layout_height="wrap_content">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/item_cv_booking"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/spacer_normal"
@@ -33,9 +34,9 @@
                         android:id="@+id/item_gambar_booking"
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
-                        android:src="@drawable/background_booking"
+                        android:contentDescription="@string/todo"
                         android:scaleType="centerCrop"
-                        android:contentDescription="@string/todo" />
+                        android:src="@drawable/background_booking" />
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -58,8 +59,8 @@
                                 android:freezesText="false"
                                 android:maxLines="2"
                                 android:minLines="1"
-                                android:text="@string/headline_booking"
                                 android:singleLine="false"
+                                android:text="@string/headline_booking"
                                 android:textColor="@color/black_main"
                                 android:textSize="18sp" />
 
@@ -69,8 +70,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="8dp"
                                 android:layout_marginRight="8dp"
-                                android:text="@string/jenis_layanan"
                                 android:fontFamily="@font/baloobhai_medium"
+                                android:text="@string/jenis_layanan"
                                 android:textColor="@color/black_sub"
                                 android:textSize="14sp" />
 
@@ -78,11 +79,11 @@
                             <androidx.constraintlayout.widget.ConstraintLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:orientation="horizontal"
-                                android:gravity="clip_horizontal"
                                 android:layout_marginLeft="8dp"
                                 android:layout_marginRight="8dp"
                                 android:layout_marginBottom="8dp"
+                                android:gravity="clip_horizontal"
+                                android:orientation="horizontal"
                                 android:paddingTop="8dp">
 
                                 <TextView
@@ -115,8 +116,8 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="start"
-                                    android:fontFamily="@font/baloobhai_regular"
                                     android:layout_marginStart="3dp"
+                                    android:fontFamily="@font/baloobhai_regular"
                                     android:hint="@string/_10_00_00"
                                     android:textColor="@color/black_main"
                                     android:textSize="12sp"

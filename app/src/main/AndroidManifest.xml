@@ -20,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".activity.DetailBookingActivity"
+            android:exported="true" />
 
         <service
             android:name=".service.MyFirebaseMessagingService"
@@ -46,6 +49,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -58,10 +62,11 @@
         <activity
             android:name=".MainActivity"
             android:exported="true">
-                <intent-filter>
-                    <action android:name="OPEN_ACTIVITY_1" />
-                    <category android:name="android.intent.category.DEFAULT" />
-                </intent-filter>
+            <intent-filter>
+                <action android:name="OPEN_ACTIVITY_1" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <receiver android:name=".service.MyNotificationPublisher" />

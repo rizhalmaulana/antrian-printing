@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.rizal.antrianprinting.models.antrian.Antrian;
+import com.rizal.antrianprinting.models.antrian.AntrianFlagging;
 import com.rizal.antrianprinting.models.user.User;
 
 public class Preferences {
@@ -19,6 +20,19 @@ public class Preferences {
 
     public static void setUser(Context context, User user){
         putString(context, Static.USER_DATA, new Gson().toJson(user));
+    }
+
+    public static AntrianFlagging getAntrianFlagging(Context context){
+        try{
+            String json = getString(context, Static.ANTRIAN_FLAGGING);
+            return new Gson().fromJson(json, AntrianFlagging.class);
+        }catch (Exception e){
+            return null;
+        }
+    }
+
+    public static void setAntrianFlagging(Context context, AntrianFlagging antrianFlagging){
+        putString(context, Static.ANTRIAN_FLAGGING, new Gson().toJson(antrianFlagging));
     }
 
     public static Antrian getAntrian(Context context){
@@ -88,5 +102,4 @@ public class Preferences {
     public static boolean getBookingFlag(Context context){
         return getBoolean(context, Static.BOOKING_KEY);
     }
-
 }

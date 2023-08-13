@@ -28,13 +28,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(message);
 
         if (message.getData().size() > 0) {
-            Log.d(TAG, "Data Notification: " + message.getData());
+            Log.d(TAG, "DataNotification: " + message.getData());
 
             // Handle the data payload
             Map<String, String> data = message.getData();
             handleDataPayload(data);
         } else {
-            Log.d(TAG, "Data Notification: " + message.getNotification());
+            Log.d(TAG, "DataNotification: " + message.getNotification());
 
             handleNotification(message.getNotification());
         }
@@ -76,6 +76,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
 
-        Log.d(TAG, "Refreshed token: " + token);
+        Log.d(TAG, "NotifikationToken: " + token);
     }
 }

@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,9 +26,12 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 import com.rizal.antrianprinting.MainActivity;
 import com.rizal.antrianprinting.R;
 import com.rizal.antrianprinting.base.BaseActivity;
+import com.rizal.antrianprinting.models.antrian.Antrian;
+import com.rizal.antrianprinting.models.antrian.AntrianFlagging;
 import com.rizal.antrianprinting.models.antrian.AntrianResponses;
 import com.rizal.antrianprinting.models.designer.DesignerItem;
 import com.rizal.antrianprinting.models.designer.DesignerResponse;
@@ -46,6 +50,7 @@ import com.rizal.antrianprinting.utils.Responses;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -77,12 +82,11 @@ public class BookingActivity extends BaseActivity {
     User user;
 
     private String pick_tanggal = "";
+    long paramTime = 0L;
 
     public static final String TAG = "BookingActivity";
     public static final String TOPIC = "all_user";
-
     public static final String NOTIFICATION_CHANNEL_ID = "10001";
-    private final static String default_notification_channel_id = "default";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +139,7 @@ public class BookingActivity extends BaseActivity {
         input_tanggal_pesanan.setOnClickListener(view -> materialDatePicker.show(getSupportFragmentManager(), "DATE_PICKER"));
 
         materialDatePicker.addOnPositiveButtonClickListener(selection -> {
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH);
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("dd MMMM yyyy");
             String dateInString = materialDatePicker.getHeaderText();
 
             try {
@@ -143,7 +147,9 @@ public class BookingActivity extends BaseActivity {
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat print = new SimpleDateFormat("yyyy-MM-dd");
 
                 pick_tanggal = print.format(date != null ? date : materialDatePicker.getHeaderText());
+
             } catch (ParseException e) {
+                Log.d(TAG, "err: " + e.getMessage());
                 e.printStackTrace();
             }
 
@@ -191,6 +197,16 @@ public class BookingActivity extends BaseActivity {
             return;
         }
 
+        if (input_number.length() < 10) {
+            input_nomor_whatsapp.setError("Batas minimal No Handphone 10 digit.");
+            return;
+        }
+
+        if (input_number.length() > 13) {
+            input_nomor_whatsapp.setError("Batas maksimal No Handphone 13 digit.");
+            return;
+        }
+
         if (input_tanggal.isEmpty() || TextUtils.isEmpty(input_tanggal)) {
             showMessage("Silahkan isi tanggal antrian anda.");
         }
@@ -210,7 +226,7 @@ public class BookingActivity extends BaseActivity {
             @Override
             public void onResponse(Call<Responses> call, retrofit2.Response<Responses> response) {
                 Responses body = response.body();
-                Log.d("Get Error Response", "onResponse: " + response.errorBody());
+                Log.d("Get Error Response", "onResponse: " + response.message());
                 if (response.isSuccessful()) {
                     assert body != null;
                     if (!body.isStatus() && body.getCode() != 200) {
@@ -266,8 +282,7 @@ public class BookingActivity extends BaseActivity {
                     if (!body.isStatus() && body.getCode() != 200) {
                         showBottomSheetBooking("Informasi", body.getMessage(), R.drawable.ic_profil_user, "Oke", "Kembali", body.getCode());
                     } else {
-//                        sendNotification();
-                        sendPushNotification("title", "body");
+                        retreiveRiwayatBooking();
                         showBottomSheetBooking("Berhasil", body.getMessage(), R.drawable.ic_location, "Mengerti", "", body.getCode());
                     }
                 } else {
@@ -287,10 +302,47 @@ public class BookingActivity extends BaseActivity {
         });
     }
 
-    private void sendPushNotification(String title, String body) {
-        Map<String, String> map = new HashMap<>();
-        map.put("title", title);
-        map.put("body", body);
+    private void retreiveRiwayatBooking() {
+        mobile_service.getantrian(user.getId()).enqueue(new Callback<AntrianResponses>() {
+            @Override
+            public void onResponse(Call<AntrianResponses> call, retrofit2.Response<AntrianResponses> response) {
+                AntrianResponses body = response.body();
+                Log.d("Get Id Antrian Response", "onResponse: " + response.errorBody());
+                if (response.isSuccessful()) {
+                    assert body != null;
+
+                    Antrian antrianResponse = new Gson().fromJson(new Gson().toJson(body.getData()), Antrian.class);
+                    AntrianFlagging antrianFlagging = new Gson().fromJson(new Gson().toJson(body.getTime()), AntrianFlagging.class);
+
+                    if (!body.isStatus() && body.getCode() != 200) {
+                        Log.d("Get Antrian Status", "onResponse: " + body.isStatus());
+                        Toast.makeText(getApplicationContext(), "Terjadi kesalahan, periksa koneksi anda!", Toast.LENGTH_SHORT).show();
+
+                        if (body.getCode() == 400) {
+                            dismissProgressDialog();
+                        }
+
+                    } else {
+                        Preferences.setAntrian(getApplicationContext(), antrianResponse);
+                        Preferences.setAntrianFlagging(getApplicationContext(), antrianFlagging);
+
+                        Log.d(TAG, "getTime: " + antrianFlagging);
+                        Log.d(TAG, "getData: " + antrianResponse);
+
+                        startCountDown(antrianFlagging);
+                    }
+                } else {
+                    Log.d("Failure Get Antrian", "onFailure: " + response.errorBody());
+                    Toast.makeText(getApplicationContext(), "Terjadi kesalahan, periksa koneksi anda!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AntrianResponses> call, Throwable t) {
+                Log.d("Failure Get Antrian", "onFailure: " + t.getMessage());
+                Toast.makeText(getApplicationContext(), "Terjadi kesalahan, " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupDataAntrian() {
@@ -480,6 +532,196 @@ public class BookingActivity extends BaseActivity {
         });
     }
 
+    private void startCountDown(AntrianFlagging antrianFlagging) {
+
+        if (paramTime == 0L) {
+            paramTime = Long.parseLong(antrianFlagging.getTime_schedule());
+        }
+
+        Log.d(TAG, "timeMill: " + paramTime);
+
+        // Update the UI with the remaining time
+        CountDownTimer countDownTimer = new CountDownTimer(paramTime, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+                Log.d(TAG, "milisUntilFinish: " + millisUntilFinished);
+
+                // This method will be called every second during the countdown
+                long totalSeconds = millisUntilFinished / 1000;
+                long hours = totalSeconds / 3600;
+                long minutes = (totalSeconds % 3600) / 60;
+                long seconds = totalSeconds % 60;
+
+                Log.d(TAG, "timeMill: " + minutes);
+
+                try {
+                    String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
+                    Log.d(TAG, "countdown: " + timeLeftFormatted);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "error countdown: " + e.getMessage());
+                }
+            }
+
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onFinish() {
+                updateConfirmBooking();
+            }
+        };
+
+        countDownTimer.start();
+    }
+
+    private void handlePushNotification(long minute) {
+        HashMap<String,  String> map = new HashMap<>();
+        map.put("title", "Notifikasi Antrian");
+        map.put("message", "Waktu kamu tersisa kurang dari "+ minute +" menit, silahkan menuju lokasi printing!");
+
+        mobile_service.pushNotification(map).enqueue(new Callback<Responses>() {
+            @Override
+            public void onResponse(Call<Responses> call, Response<Responses> response) {
+                Responses body = response.body();
+
+                if (body != null) {
+                    Log.d("Notifikasi", "body: " + body.getData());
+                    if (body.isStatus()) {
+                        if (body.getCode() != 400) {
+                            Log.d("Notifikasi", "Notifikasi Sukses: " + body.getMessage());
+                        } else {
+                            Log.d("Notifikasi", "Notifikasi Failed: " + body.getCode());
+                        }
+                    }
+                } else {
+                    Log.d("Notifikasi", "Notifikasi Response: " + response.errorBody());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Responses> call, Throwable t) {
+                Log.d("Notifikasi", "onFailure: " + t.getMessage());
+            }
+        });
+    }
+
+    private void updateConfirmBooking() {
+        Antrian itemAntrian = Preferences.getAntrian(getApplicationContext());
+        AntrianFlagging itemAntrianFlagging = Preferences.getAntrianFlagging(getApplicationContext());
+
+        if (itemAntrian != null && itemAntrianFlagging != null) {
+            Date time = Calendar.getInstance().getTime();
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat parsingTime = new SimpleDateFormat("HH:mm:ss");
+            String strTime = parsingTime.format(time);
+
+            try {
+                Date time1 = parsingTime.parse(strTime);
+                Date time2 = parsingTime.parse(itemAntrian.getJam_booking());
+
+                long elapsed = time2.getTime() - time1.getTime();
+                long valueMenit = 60000;
+
+                Log.d("MainActivitys", "Selisih Menit: " + (elapsed / valueMenit));
+
+                long convertMenit = elapsed / valueMenit;
+
+                if (convertMenit >= 60) {
+                    paramTime = 3600000L;
+
+                    itemAntrian.setStatus("Menunggu Verifikasi");
+                    itemAntrianFlagging.setTime_schedule(String.valueOf(paramTime));
+
+                    handlePushNotification(paramTime);
+                } else if (convertMenit >= 30) {
+                    paramTime = 1800000L;
+
+                    itemAntrian.setStatus("Menunggu Verifikasi");
+                    itemAntrianFlagging.setTime_schedule(String.valueOf(paramTime));
+
+                    handlePushNotification(paramTime);
+                } else if (convertMenit >= 10) {
+                    paramTime = 600000L;
+
+                    itemAntrian.setStatus("Menunggu Verifikasi");
+                    itemAntrianFlagging.setTime_schedule(String.valueOf(paramTime));
+
+                    handlePushNotification(paramTime);
+
+                } else {
+                    mobile_service.cancelantrian(itemAntrian.getId()).enqueue(new Callback<Responses>() {
+                        @Override
+                        public void onResponse(Call<Responses> call, Response<Responses> response) {
+                            Responses body = response.body();
+                            Log.d("CancelAntrianResponse", "onResponse: " + response.errorBody());
+                            if (response.isSuccessful()) {
+                                assert body != null;
+
+                                if (!body.isStatus() && body.getCode() != 200) {
+                                    Log.d("Get Antrian Status", "onResponse: " + body.isStatus());
+                                    if (body.getCode() == 400) {
+                                        Toast.makeText(getApplicationContext(), "Antrian gagal untuk dibatalkan, silahkan coba lagi!", Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    handlePushNotificationNoParam();
+
+                                    Preferences.setAntrian(getApplicationContext(), null);
+                                    Preferences.setAntrianFlagging(getApplicationContext(), null);
+
+                                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                    finish();
+                                }
+                            } else {
+                                Log.d("FailureCancelAntrian", "onFailure: " + response.errorBody());
+                                Toast.makeText(getApplicationContext(), "Antrian gagal untuk dibatalkan, periksa koneksi anda!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Responses> call, Throwable t) {
+                            Log.d("FailureGetAntrian", "onFailure: " + t.getMessage());
+
+                            Toast.makeText(getApplicationContext(), "Antrian gagal untuk dibatalkan, periksa koneksi anda!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void handlePushNotificationNoParam() {
+        HashMap<String,  String> map = new HashMap<>();
+        map.put("title", "Notifikasi Antrian");
+        map.put("message", "Sayang sekali waktu kamu sudah habis, Antrian otomatis dibatalkan!");
+
+        mobile_service.pushNotification(map).enqueue(new Callback<Responses>() {
+            @Override
+            public void onResponse(Call<Responses> call, Response<Responses> response) {
+                Responses body = response.body();
+
+                if (body != null) {
+                    Log.d("Notifikasi", "body: " + body.getData());
+                    if (body.isStatus()) {
+                        if (body.getCode() != 400) {
+                            Log.d("Notifikasi", "Notifikasi Sukses: " + body.getMessage());
+                        } else {
+                            Log.d("Notifikasi", "Notifikasi Failed: " + body.getCode());
+                        }
+                    }
+                } else {
+                    Log.d("Notifikasi", "Notifikasi Response: " + response.errorBody());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Responses> call, Throwable t) {
+                Log.d("Notifikasi", "onFailure: " + t.getMessage());
+            }
+        });
+    }
+
+
     private void configureMessage() {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             FirebaseAuth.getInstance()
@@ -490,63 +732,6 @@ public class BookingActivity extends BaseActivity {
             FirebaseMessaging.getInstance().subscribeToTopic(TOPIC);
         }
     }
-
-//    private void sendNotification() {
-//        fcm_service.sendNotification(new NotificationItem(new NotificationData(title, msg), DIRECTION_TO))
-//                .enqueue(new Callback<NotificationData>() {
-//                    @Override
-//                    public void onResponse(Call<NotificationData> call, Response<NotificationData> response) {
-//                        if (response.isSuccessful()) {
-//                            Toast.makeText(BookingActivity.this, "Notifikasi Testing Terkirim", Toast.LENGTH_SHORT).show();
-//                        } else {
-//                            Toast.makeText(BookingActivity.this, "Notifikasi Testing Gagal Terkirim", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<NotificationData> call, Throwable t) {
-//                        Toast.makeText(BookingActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//    }
-
-//    private void scheduleNotification(Notification notification, int delay) {
-//        Intent notificationIntent = new Intent(this, MyNotificationPublisher.class);
-//        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION_ID, 1);
-//        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification);
-//
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        long futureInMillis = SystemClock.elapsedRealtime() + delay;
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//        assert alarmManager != null;
-//        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, futureInMillis, pendingIntent);
-//    }
-
-//    private Notification getNotification(String content) {
-//        Intent intent = new Intent(this, RiwayatBookingActivity.class);
-//
-//        PendingIntent pendingIntent = null;
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent,
-//                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-//        } else {
-//            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        }
-//
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, default_notification_channel_id);
-//
-//        builder.setVibrate(new long[]{0, 100})
-//                .setPriority(Notification.PRIORITY_MAX)
-//                .setContentTitle("Pengingat Antrian Kamu")
-//                .setContentText(content)
-//                .setSmallIcon(R.drawable.ic_launcher_foreground)
-//                .setAutoCancel(true)
-//                .setOnlyAlertOnce(true)
-//                .setContentIntent(pendingIntent)
-//                .setChannelId(NOTIFICATION_CHANNEL_ID);
-//
-//        return builder.build();
-//    }
 
     private void initializeData() {
         initializeWaktuBooking();
@@ -619,7 +804,11 @@ public class BookingActivity extends BaseActivity {
 
                 startActivity(new Intent(BookingActivity.this, RiwayatBookingActivity.class));
                 finish();
+            } else if (code == 100) {
+                AntrianFlagging itemAntrianFlagging = Preferences.getAntrianFlagging(getApplicationContext());
+                startCountDown(itemAntrianFlagging);
 
+                startActivity(new Intent(BookingActivity.this, RiwayatBookingActivity.class));
             } else {
                 bottomSheetDialog.dismiss();
             }

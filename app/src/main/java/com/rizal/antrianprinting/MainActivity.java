@@ -4,14 +4,15 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -26,13 +27,20 @@ import com.rizal.antrianprinting.activity.ProfilActivity;
 import com.rizal.antrianprinting.activity.RiwayatBookingActivity;
 import com.rizal.antrianprinting.base.BaseActivity;
 import com.rizal.antrianprinting.models.antrian.Antrian;
+import com.rizal.antrianprinting.models.antrian.AntrianFlagging;
+import com.rizal.antrianprinting.models.antrian.AntrianResponses;
 import com.rizal.antrianprinting.models.user.User;
 import com.rizal.antrianprinting.utils.ApiUtils;
 import com.rizal.antrianprinting.utils.MobileService;
 import com.rizal.antrianprinting.utils.Preferences;
-import com.rizal.antrianprinting.utils.Responses;
 
-import java.util.Locale;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,17 +51,13 @@ public class MainActivity extends BaseActivity {
     private FirebaseAuth firebaseAuth;
     private GoogleSignInClient googleSignInClient;
 
-    private CountDownTimer countDownTimer;
-    private boolean isTimerRunning = false;
-
-    TextView jam_booking, jam_pelayanan, countdown_service;
+    TextView jam_booking, jam_pelayanan;
     LinearLayout lr_booking, lr_riwayat, lr_informasi, lr_profil, lr_logout;
     SwipeRefreshLayout lr_refresh;
     MobileService mobileService;
     ProgressDialog progressDialog;
 
     User user;
-    Antrian antrian;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +76,6 @@ public class MainActivity extends BaseActivity {
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN);
 
         user = Preferences.getUser(getApplicationContext());
-        antrian = Preferences.getAntrian(getApplicationContext());
 
         if (user == null) {
             Toast.makeText(this, "Silahkan login terlebih dahulu.", Toast.LENGTH_LONG).show();
@@ -80,7 +83,6 @@ public class MainActivity extends BaseActivity {
             finish();
         }
 
-        countdown_service = findViewById(R.id.tv_countdown_service);
         jam_booking = findViewById(R.id.tv_home_jam_booking);
         jam_pelayanan = findViewById(R.id.tv_home_jam_pelayanan);
 
@@ -106,9 +108,21 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setOnClick() {
-        lr_booking.setOnClickListener(v -> startActivity(new Intent(this, BookingActivity.class)));
+        lr_booking.setOnClickListener(v -> {
+            AntrianFlagging antrianFlagging = Preferences.getAntrianFlagging(getApplicationContext());
+
+            if (antrianFlagging != null) {
+                if (antrianFlagging.getStatus_flagging() != 0) {
+                    Toast.makeText(getApplicationContext(), "Kamu masih memiliki antrian, silahkan selesaikan antrian anda!", Toast.LENGTH_LONG).show();
+                } else {
+                    startActivity(new Intent(this, BookingActivity.class));
+                }
+            } else {
+                startActivity(new Intent(this, BookingActivity.class));
+            }
+        });
         lr_riwayat.setOnClickListener(v -> startActivity(new Intent(this, RiwayatBookingActivity.class)));
-        lr_informasi.setOnClickListener(v -> startActivity(new Intent(this, InformasiActivity.class)));
+        lr_informasi.setOnClickListener(v -> Toast.makeText(getApplicationContext(), "Fitur Dalam Pengerjaan", Toast.LENGTH_SHORT).show());
         lr_profil.setOnClickListener(v -> startActivity(new Intent(this, ProfilActivity.class)));
 
         lr_refresh.setOnRefreshListener(this::setUpData);
@@ -118,14 +132,16 @@ public class MainActivity extends BaseActivity {
     private void setUpData() {
         showProgressDialog();
 
-        mobileService.getantrian(user.getId()).enqueue(new Callback<Responses>() {
+        mobileService.getantrian(user.getId()).enqueue(new Callback<AntrianResponses>() {
             @Override
-            public void onResponse(Call<Responses> call, retrofit2.Response<Responses> response) {
-                Responses body = response.body();
+            public void onResponse(Call<AntrianResponses> call, retrofit2.Response<AntrianResponses> response) {
+                AntrianResponses body = response.body();
                 Log.d("Get Id Antrian Response", "onResponse: " + response.errorBody());
                 if (response.isSuccessful()) {
                     assert body != null;
                     Antrian antrianResponse = new Gson().fromJson(new Gson().toJson(body.getData()), Antrian.class);
+                    AntrianFlagging antrianFlagging = new Gson().fromJson(new Gson().toJson(body.getTime()), AntrianFlagging.class);
+
                     if (!body.isStatus() && body.getCode() != 200) {
                         Log.d("Get Antrian Status", "onResponse: " + body.isStatus());
                         if (body.getCode() == 400) {
@@ -133,9 +149,10 @@ public class MainActivity extends BaseActivity {
 
                             jam_booking.setText(R.string.tidak_ada_antrian);
                             jam_pelayanan.setText(R.string.tidak_ada_antrian);
-                            countdown_service.setText(R.string._00_00_00);
 
-                            Preferences.setBookingFlag(getApplicationContext(), false);
+                            Preferences.setAntrian(getApplicationContext(), null);
+                            Preferences.setAntrianFlagging(getApplicationContext(), null);
+
                             lr_refresh.setRefreshing(false);
                         }
                     } else {
@@ -143,67 +160,35 @@ public class MainActivity extends BaseActivity {
 
                         jam_booking.setText(antrianResponse.getJam_booking());
                         jam_pelayanan.setText(antrianResponse.getJam_selesai());
-                        startCountDown(isTimerRunning);
 
-                        Preferences.setBookingFlag(getApplicationContext(), true);
+                        Preferences.setAntrian(getApplicationContext(), antrianResponse);
+                        Preferences.setAntrianFlagging(getApplicationContext(), antrianFlagging);
+
                         lr_refresh.setRefreshing(false);
                     }
                 } else {
                     dismissProgressDialog();
-                    Preferences.setBookingFlag(getApplicationContext(), false);
-
                     Log.d("Failure Get Antrian", "onFailure: " + response.errorBody());
 
                     jam_booking.setText(R.string.tidak_ada_antrian);
                     jam_pelayanan.setText(R.string.tidak_ada_antrian);
+
+                    Preferences.setAntrian(getApplicationContext(), null);
+                    Preferences.setAntrianFlagging(getApplicationContext(), null);
+
                     lr_refresh.setRefreshing(false);
                 }
             }
 
             @Override
-            public void onFailure(Call<Responses> call, Throwable t) {
+            public void onFailure(Call<AntrianResponses> call, Throwable t) {
                 dismissProgressDialog();
-                Preferences.setBookingFlag(getApplicationContext(), false);
-
                 Log.d("Failure Get Antrian", "onFailure: " + t.getMessage());
 
-                showMessage("Terjadi kesalahan, Periksa koneksi anda");
+                showMessage("Terjadi kesalahan, " + t.getMessage());
                 lr_refresh.setRefreshing(false);
             }
         });
-    }
-
-    private void startCountDown(boolean isTimerRunning) {
-        if (!isTimerRunning) {
-            countDownTimer = new CountDownTimer(30000, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    // This method will be called every second during the countdown
-                    long totalSeconds = millisUntilFinished / 1000;
-
-                    long hours = totalSeconds / 3600;
-                    long minutes = (totalSeconds % 3600) / 60;
-                    long seconds = totalSeconds % 60;
-
-                    String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
-
-                    // Update the UI with the remaining time
-                    countdown_service.setText(timeLeftFormatted);
-                }
-
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onFinish() {
-                    MainActivity.this.isTimerRunning = false;
-                    countdown_service.setText("Countdown finished!");
-                }
-            };
-
-            countDownTimer.start();
-            this.isTimerRunning = true;
-        } else {
-            Toast.makeText(getApplicationContext(), "Countdown sedang berlangsung.", Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void showDialogLogout() {
@@ -243,7 +228,7 @@ public class MainActivity extends BaseActivity {
                 .addOnFailureListener(this, e -> Log.e("Logout Account", "Sign out failed", e));
     }
 
-    private void showProgressDialog() {
+    public void showProgressDialog() {
         progressDialog = new ProgressDialog(MainActivity.this);
         progressDialog.show();
         progressDialog.setContentView(R.layout.item_progress_bar);
@@ -253,7 +238,7 @@ public class MainActivity extends BaseActivity {
         );
     }
 
-    private void dismissProgressDialog() {
+    public void dismissProgressDialog() {
         progressDialog.dismiss();
     }
 
