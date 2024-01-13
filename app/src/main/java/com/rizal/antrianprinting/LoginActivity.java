@@ -29,6 +29,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.rizal.antrianprinting.base.BaseActivity;
 import com.rizal.antrianprinting.models.user.User;
@@ -257,8 +258,10 @@ public class LoginActivity extends BaseActivity {
                         dismissProgressDialog();
 
                         Log.d("Login Status", "onResponse: " + body.isStatus());
-                        showMessage("Email atau password anda salah.");
+                        showMessage("Email atau password anda salah, coba lagi!");
                     } else {
+                        requestFCMToken(user.getId()); // Request FCM Token User then update to table user
+
                         dismissProgressDialog();
 
                         Preferences.setUser(getApplicationContext(), user);
@@ -284,6 +287,40 @@ public class LoginActivity extends BaseActivity {
                 showMessage("Terjadi kesalahan, Periksa koneksi anda");
             }
         });
+    }
+
+    private void requestFCMToken(int id) {
+        HashMap<String, String> map = new HashMap<>();
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        String token = task.getResult();
+
+                        map.put("id_user", String.valueOf(id));
+                        map.put("fcm_token", token);
+
+                        mobileService.updateFCMToken(map).enqueue(new Callback<Responses>() {
+                            @Override
+                            public void onResponse(Call<Responses> call, Response<Responses> response) {
+                                Responses body = response.body();
+                                assert body != null;
+                                if (body.getCode() == 200) {
+                                    Log.e("FCMToken", "Success to update fcm token");
+                                } else {
+                                    Log.e("FCMToken", "Failed to update fcm token cause code is not 200");
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Responses> call, Throwable t) {
+                                Log.e("FCMToken", "Failed to update fcm token");
+                            }
+                        });
+                    } else {
+                        Log.e("FCMToken", "Failed to update fcm token");
+                    }
+                });
     }
 
     private void showProgressDialog() {

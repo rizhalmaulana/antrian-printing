@@ -47,6 +47,10 @@ public interface MobileService {
     Call<Responses> pushNotification(@FieldMap Map<String, String> map);
 
     @FormUrlEncoded
+    @POST("update-fcm")
+    Call<Responses> updateFCMToken(@FieldMap Map<String, String> map);
+
+    @FormUrlEncoded
     @POST("register")
     Call<Responses> createuser(@FieldMap Map<String, String> map);
 

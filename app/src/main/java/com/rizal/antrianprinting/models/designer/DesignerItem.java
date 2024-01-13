@@ -3,6 +3,7 @@ package com.rizal.antrianprinting.models.designer;
 public class DesignerItem {
 
     private int id;
+    private String username;
 
     public int getId() {
         return id;
@@ -11,8 +12,6 @@ public class DesignerItem {
     public void setId(int id) {
         this.id = id;
     }
-
-    private String username;
 
     public String getUsername() {
         return username;

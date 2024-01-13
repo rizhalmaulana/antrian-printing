@@ -1,10 +1,8 @@
 package com.rizal.antrianprinting;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -12,7 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -22,7 +19,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.rizal.antrianprinting.activity.BookingActivity;
-import com.rizal.antrianprinting.activity.InformasiActivity;
 import com.rizal.antrianprinting.activity.ProfilActivity;
 import com.rizal.antrianprinting.activity.RiwayatBookingActivity;
 import com.rizal.antrianprinting.base.BaseActivity;
@@ -33,14 +29,6 @@ import com.rizal.antrianprinting.models.user.User;
 import com.rizal.antrianprinting.utils.ApiUtils;
 import com.rizal.antrianprinting.utils.MobileService;
 import com.rizal.antrianprinting.utils.Preferences;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
 
 import retrofit2.Call;
 import retrofit2.Callback;

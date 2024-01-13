@@ -41,6 +41,9 @@ public class User {
     @Expose
     @SerializedName("email_user")
     private String email_user;
+    @Expose
+    @SerializedName("fcm_token")
+    private String fcm_token;
 
     public int getId() {
         return id;
@@ -128,5 +131,13 @@ public class User {
 
     public void setEmail_user(String email_user) {
         this.email_user = email_user;
+    }
+
+    public String getFcm_token() {
+        return fcm_token;
+    }
+
+    public void setFcm_token(String fcm_token) {
+        this.fcm_token = fcm_token;
     }
 }
