@@ -152,7 +152,7 @@ public class RegistrationActivity extends BaseActivity {
                     Log.d("Registration", "body: " + body.getData());
                     if (body.isStatus()) {
                         Log.d("Registration", "body: " + body.getData());
-                        if (body.getData() != null && body.getCode() != 400) {
+                        if (body.getData() != null) {
                             dismissProgressDialog();
 
                             User user = new Gson().fromJson(new Gson().toJson(body.getData()), User.class);
@@ -165,12 +165,12 @@ public class RegistrationActivity extends BaseActivity {
 
                             startActivity(new Intent(RegistrationActivity.this, MainActivity.class));
                             finish();
-                        } else {
-                            dismissProgressDialog();
-
-                            Log.d("Registration", "body: " + response.errorBody());
-                            showBottomSheet("Informasi", body.getMessage(), R.drawable.ic_profil_user, "Mengerti", "");
                         }
+                    } else {
+                        dismissProgressDialog();
+
+                        Log.d("Registration", "body: " + body.getMessage());
+                        showBottomSheet("Informasi", body.getMessage(), R.drawable.ic_profil_user, "Mengerti", "");
                     }
                 } else {
                     dismissProgressDialog();

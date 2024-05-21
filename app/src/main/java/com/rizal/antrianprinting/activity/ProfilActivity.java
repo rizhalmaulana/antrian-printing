@@ -1,5 +1,6 @@
 package com.rizal.antrianprinting.activity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.rizal.antrianprinting.LoginActivity;
 import com.rizal.antrianprinting.MainActivity;
 import com.rizal.antrianprinting.R;
 import com.rizal.antrianprinting.models.user.User;
@@ -42,18 +44,17 @@ public class ProfilActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
 
-        checkUser();
+        checkIfUserSignGoogle();
 
         layoutEditProfil.setOnClickListener(v -> Toast.makeText(getApplicationContext(), "Fitur Dalam Pengerjaan", Toast.LENGTH_SHORT).show());
         layoutGantiPass.setOnClickListener(v -> Toast.makeText(getApplicationContext(), "Fitur Dalam Pengerjaan", Toast.LENGTH_SHORT).show());
         ivBack.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
     }
 
-    private void checkUser() {
-        if (firebaseAuth != null) {
+    private void checkIfUserSignGoogle() {
+        if (firebaseUser != null) {
             namaUser = firebaseUser.getDisplayName();
             emailUser = firebaseUser.getEmail();
-
         } else {
             User user = Preferences.getUser(getApplicationContext());
 
@@ -61,12 +62,28 @@ public class ProfilActivity extends AppCompatActivity {
                 namaUser = user.getUsername();
                 emailUser = user.getEmail_user();
             } else {
-                namaUser = "User";
-                emailUser = "user@gmail.com";
+                alertDialogInformation();
             }
         }
 
         txtNama.setText(namaUser);
         txtEmail.setText(emailUser);
+    }
+
+    private void alertDialogInformation() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        alertDialogBuilder
+                .setTitle("Informasi")
+                .setMessage("Akun kadaluwarsa, silahkan login kembali!");
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Mengerti", (dialogInterface, i) -> {
+                    startActivity(new Intent(this, LoginActivity.class));
+                    finish();
+                });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 }

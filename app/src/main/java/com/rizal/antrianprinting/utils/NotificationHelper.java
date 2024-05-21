@@ -82,7 +82,7 @@ public class NotificationHelper {
                     .setContentTitle(title)
                     .setContentIntent(resultPendingIntent)
                     .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_information)
                     .setContentText(message)
                     .build();
         } else {

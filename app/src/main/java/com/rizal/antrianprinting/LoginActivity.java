@@ -250,32 +250,36 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onResponse(Call<Responses> call, retrofit2.Response<Responses> response) {
                 Responses body = response.body();
-                Log.d("Login Response", "onResponse: " + response.errorBody());
-                if (response.isSuccessful()) {
-                    assert body != null;
-                    User user = new Gson().fromJson(new Gson().toJson(body.getData()), User.class);
-                    if (!body.isStatus() && body.getCode() != 200) {
-                        dismissProgressDialog();
+                Log.d("Login Response", "onResponse: " + response.message());
+                if (body != null) {
+                    if (response.isSuccessful()) {
+                        User user = new Gson().fromJson(new Gson().toJson(body.getData()), User.class);
+                        if (!body.isStatus() && body.getCode() != 200) {
+                            dismissProgressDialog();
 
-                        Log.d("Login Status", "onResponse: " + body.isStatus());
-                        showMessage("Email atau password anda salah, coba lagi!");
+                            Log.d("Login Status", "onResponse: " + body.getMessage());
+                            showMessage("Email atau password anda salah, coba lagi!");
+                        } else {
+                            requestFCMToken(user.getId()); // Request FCM Token User then update to table user
+
+                            dismissProgressDialog();
+
+                            Preferences.setUser(getApplicationContext(), user);
+                            showMessage("Selamat datang, " + user.getNama_lengkap());
+
+                            Preferences.setLoginFlag(getApplicationContext(), true);
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            finish();
+                        }
                     } else {
-                        requestFCMToken(user.getId()); // Request FCM Token User then update to table user
-
                         dismissProgressDialog();
+                        Log.d("Failure Login", "onFailure: " + body.getMessage());
 
-                        Preferences.setUser(getApplicationContext(), user);
-                        showMessage("Selamat datang, " + user.getNama_lengkap());
-
-                        Preferences.setLoginFlag(getApplicationContext(), true);
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        finish();
+                        showMessage(body.getMessage());
                     }
                 } else {
                     dismissProgressDialog();
-                    Log.d("Failure Login", "onFailure: " + response.errorBody());
-
-                    showMessage("Gagal login, Silahkan coba lagi.");
+                    showMessage("Terjadi kesalahan, coba lagi!");
                 }
             }
 
@@ -304,11 +308,14 @@ public class LoginActivity extends BaseActivity {
                             @Override
                             public void onResponse(Call<Responses> call, Response<Responses> response) {
                                 Responses body = response.body();
-                                assert body != null;
-                                if (body.getCode() == 200) {
-                                    Log.e("FCMToken", "Success to update fcm token");
+                                if (body != null) {
+                                    if (body.getCode() == 200) {
+                                        Log.e("FCMToken", "Success to update fcm token");
+                                    } else {
+                                        Log.e("FCMToken", "Failed to update fcm token cause code is not 200");
+                                    }
                                 } else {
-                                    Log.e("FCMToken", "Failed to update fcm token cause code is not 200");
+                                    Log.e("FCMToken", "Failed cause body response is null. " + response.message());
                                 }
                             }
 

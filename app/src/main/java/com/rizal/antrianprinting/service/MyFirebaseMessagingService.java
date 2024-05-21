@@ -12,6 +12,7 @@ import com.rizal.antrianprinting.models.notification.NotificationModel;
 import com.rizal.antrianprinting.utils.NotificationHelper;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyFirebaseMsgService";
@@ -28,15 +29,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(message);
 
         if (message.getData().size() > 0) {
-            Log.d(TAG, "DataNotification: " + message.getData());
-
             // Handle the data payload
             Map<String, String> data = message.getData();
             handleDataPayload(data);
         } else {
-            Log.d(TAG, "DataNotification: " + message.getNotification());
-
-            handleNotification(message.getNotification());
+            handleNotification(Objects.requireNonNull(message.getNotification()));
         }
     }
 

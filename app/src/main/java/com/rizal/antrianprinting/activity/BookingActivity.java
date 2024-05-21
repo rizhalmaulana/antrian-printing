@@ -5,7 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.CountDownTimer;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +17,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
@@ -42,6 +46,7 @@ import com.rizal.antrianprinting.models.waktubooking.WaktuBookingItem;
 import com.rizal.antrianprinting.models.waktubooking.WaktuBookingResponse;
 import com.rizal.antrianprinting.models.waktuselesai.WaktuSelesaiItem;
 import com.rizal.antrianprinting.models.waktuselesai.WaktuSelesaiResponse;
+import com.rizal.antrianprinting.service.BookingWorker;
 import com.rizal.antrianprinting.utils.ApiUtils;
 import com.rizal.antrianprinting.utils.MobileService;
 import com.rizal.antrianprinting.utils.Preferences;
@@ -56,6 +61,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -81,13 +87,18 @@ public class BookingActivity extends BaseActivity {
     TextView title_sheet, message_sheet;
     User user;
 
+    private Handler handler;
+    private Runnable checkBookingRunnable;
+    private static final long CHECK_INTERVAL = 60000; // 1 minute
+
     private String pick_tanggal = "";
-    long paramTime = 0L;
+    long scheduleTime = 0L;
 
     public static final String TAG = "BookingActivity";
     public static final String TOPIC = "all_user";
     public static final String NOTIFICATION_CHANNEL_ID = "10001";
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +109,7 @@ public class BookingActivity extends BaseActivity {
         user = Preferences.getUser(getApplicationContext());
 
         bottomSheetDialog = new BottomSheetDialog(BookingActivity.this, R.style.BottomSheetDialogTheme);
+        handler = new Handler();
 
         bottom_sheet = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_dialog, findViewById(R.id.bottom_sheet_dialog_konfirmasi));
         close_sheet = bottom_sheet.findViewById(R.id.btn_sheet_close);
@@ -282,7 +294,7 @@ public class BookingActivity extends BaseActivity {
                     if (!body.isStatus() && body.getCode() != 200) {
                         showBottomSheetBooking("Informasi", body.getMessage(), R.drawable.ic_profil_user, "Oke", "Kembali", body.getCode());
                     } else {
-                        retreiveRiwayatBooking();
+                        retrieveRiwayatBooking();
                         showBottomSheetBooking("Berhasil", body.getMessage(), R.drawable.ic_location, "Mengerti", "", body.getCode());
                     }
                 } else {
@@ -302,7 +314,7 @@ public class BookingActivity extends BaseActivity {
         });
     }
 
-    private void retreiveRiwayatBooking() {
+    private void retrieveRiwayatBooking() {
         mobile_service.getantrian(user.getId()).enqueue(new Callback<AntrianResponses>() {
             @Override
             public void onResponse(Call<AntrianResponses> call, retrofit2.Response<AntrianResponses> response) {
@@ -326,10 +338,7 @@ public class BookingActivity extends BaseActivity {
                         Preferences.setAntrian(getApplicationContext(), antrianResponse);
                         Preferences.setAntrianFlagging(getApplicationContext(), antrianFlagging);
 
-                        Log.d(TAG, "getTime: " + antrianFlagging);
-                        Log.d(TAG, "getData: " + antrianResponse);
-
-                        startCountDown(antrianFlagging);
+                        startScheduleAntrian(antrianFlagging);
                     }
                 } else {
                     Log.d("Failure Get Antrian", "onFailure: " + response.errorBody());
@@ -532,195 +541,34 @@ public class BookingActivity extends BaseActivity {
         });
     }
 
-    private void startCountDown(AntrianFlagging antrianFlagging) {
+    private void startScheduleAntrian(AntrianFlagging antrianFlagging) {
+        String jamReminder = antrianFlagging.getJam_reminder();
+        SimpleDateFormat formatWaktu = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
-        if (paramTime == 0L) {
-            paramTime = Long.parseLong(antrianFlagging.getTime_schedule());
-        }
+        Data itemAntrianId = new Data.Builder()
+                .putInt("antrianId", antrianFlagging.getId_antrian())
+                .build();
 
-        Log.d(TAG, "timeMill: " + paramTime);
+        try {
+            // Parsing the booking time
+            Calendar bookingCalendar = Calendar.getInstance();
+            bookingCalendar.setTime(formatWaktu.parse(jamReminder));
 
-        // Update the UI with the remaining time
-        CountDownTimer countDownTimer = new CountDownTimer(paramTime, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
+            Calendar currentCalendar = Calendar.getInstance();
+            bookingCalendar.set(currentCalendar.get(Calendar.YEAR), currentCalendar.get(Calendar.MONTH), currentCalendar.get(Calendar.DAY_OF_MONTH));
 
-                Log.d(TAG, "milisUntilFinish: " + millisUntilFinished);
+            OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(BookingWorker.class)
+                    .setInitialDelay(60, TimeUnit.MINUTES)
+                    .setInputData(itemAntrianId)
+                    .build();
 
-                // This method will be called every second during the countdown
-                long totalSeconds = millisUntilFinished / 1000;
-                long hours = totalSeconds / 3600;
-                long minutes = (totalSeconds % 3600) / 60;
-                long seconds = totalSeconds % 60;
+            WorkManager.getInstance(this).enqueue(workRequest);
+            Toast.makeText(this, "Segera lakukan konfirmasi antrian!", Toast.LENGTH_SHORT).show();
 
-                Log.d(TAG, "timeMill: " + minutes);
-
-                try {
-                    String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
-                    Log.d(TAG, "countdown: " + timeLeftFormatted);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.d(TAG, "error countdown: " + e.getMessage());
-                }
-            }
-
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onFinish() {
-                updateConfirmBooking();
-            }
-        };
-
-        countDownTimer.start();
-    }
-
-    private void handlePushNotification(long minute) {
-        HashMap<String,  String> map = new HashMap<>();
-        map.put("title", "Notifikasi Antrian");
-        map.put("message", "Waktu kamu tersisa kurang dari "+ minute +" menit, silahkan menuju lokasi printing!");
-
-        mobile_service.pushNotification(map).enqueue(new Callback<Responses>() {
-            @Override
-            public void onResponse(Call<Responses> call, Response<Responses> response) {
-                Responses body = response.body();
-
-                if (body != null) {
-                    Log.d("Notifikasi", "body: " + body.getData());
-                    if (body.isStatus()) {
-                        if (body.getCode() != 400) {
-                            Log.d("Notifikasi", "Notifikasi Sukses: " + body.getMessage());
-                        } else {
-                            Log.d("Notifikasi", "Notifikasi Failed: " + body.getCode());
-                        }
-                    }
-                } else {
-                    Log.d("Notifikasi", "Notifikasi Response: " + response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Responses> call, Throwable t) {
-                Log.d("Notifikasi", "onFailure: " + t.getMessage());
-            }
-        });
-    }
-
-    private void updateConfirmBooking() {
-        Antrian itemAntrian = Preferences.getAntrian(getApplicationContext());
-        AntrianFlagging itemAntrianFlagging = Preferences.getAntrianFlagging(getApplicationContext());
-
-        if (itemAntrian != null && itemAntrianFlagging != null) {
-            Date time = Calendar.getInstance().getTime();
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat parsingTime = new SimpleDateFormat("HH:mm:ss");
-            String strTime = parsingTime.format(time);
-
-            try {
-                Date time1 = parsingTime.parse(strTime);
-                Date time2 = parsingTime.parse(itemAntrian.getJam_booking());
-
-                long elapsed = time2.getTime() - time1.getTime();
-                long valueMenit = 60000;
-
-                Log.d("MainActivitys", "Selisih Menit: " + (elapsed / valueMenit));
-
-                long convertMenit = elapsed / valueMenit;
-
-                if (convertMenit >= 60) {
-                    paramTime = 3600000L;
-
-                    itemAntrian.setStatus("Menunggu Verifikasi");
-                    itemAntrianFlagging.setTime_schedule(String.valueOf(paramTime));
-
-                    handlePushNotification(paramTime);
-                } else if (convertMenit >= 30) {
-                    paramTime = 1800000L;
-
-                    itemAntrian.setStatus("Menunggu Verifikasi");
-                    itemAntrianFlagging.setTime_schedule(String.valueOf(paramTime));
-
-                    handlePushNotification(paramTime);
-                } else if (convertMenit >= 10) {
-                    paramTime = 600000L;
-
-                    itemAntrian.setStatus("Menunggu Verifikasi");
-                    itemAntrianFlagging.setTime_schedule(String.valueOf(paramTime));
-
-                    handlePushNotification(paramTime);
-
-                } else {
-                    mobile_service.cancelantrian(itemAntrian.getId()).enqueue(new Callback<Responses>() {
-                        @Override
-                        public void onResponse(Call<Responses> call, Response<Responses> response) {
-                            Responses body = response.body();
-                            Log.d("CancelAntrianResponse", "onResponse: " + response.errorBody());
-                            if (response.isSuccessful()) {
-                                assert body != null;
-
-                                if (!body.isStatus() && body.getCode() != 200) {
-                                    Log.d("Get Antrian Status", "onResponse: " + body.isStatus());
-                                    if (body.getCode() == 400) {
-                                        Toast.makeText(getApplicationContext(), "Antrian gagal untuk dibatalkan, silahkan coba lagi!", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    handlePushNotificationNoParam();
-
-                                    Preferences.setAntrian(getApplicationContext(), null);
-                                    Preferences.setAntrianFlagging(getApplicationContext(), null);
-
-                                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                                    finish();
-                                }
-                            } else {
-                                Log.d("FailureCancelAntrian", "onFailure: " + response.errorBody());
-                                Toast.makeText(getApplicationContext(), "Antrian gagal untuk dibatalkan, periksa koneksi anda!", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Responses> call, Throwable t) {
-                            Log.d("FailureGetAntrian", "onFailure: " + t.getMessage());
-
-                            Toast.makeText(getApplicationContext(), "Antrian gagal untuk dibatalkan, periksa koneksi anda!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+        } catch (ParseException e) {
+            Toast.makeText(this, "Terjadi kesalahan, invalid format waktu. " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-
-    private void handlePushNotificationNoParam() {
-        HashMap<String,  String> map = new HashMap<>();
-        map.put("title", "Notifikasi Antrian");
-        map.put("message", "Sayang sekali waktu kamu sudah habis, Antrian otomatis dibatalkan!");
-
-        mobile_service.pushNotification(map).enqueue(new Callback<Responses>() {
-            @Override
-            public void onResponse(Call<Responses> call, Response<Responses> response) {
-                Responses body = response.body();
-
-                if (body != null) {
-                    Log.d("Notifikasi", "body: " + body.getData());
-                    if (body.isStatus()) {
-                        if (body.getCode() != 400) {
-                            Log.d("Notifikasi", "Notifikasi Sukses: " + body.getMessage());
-                        } else {
-                            Log.d("Notifikasi", "Notifikasi Failed: " + body.getCode());
-                        }
-                    }
-                } else {
-                    Log.d("Notifikasi", "Notifikasi Response: " + response.errorBody());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Responses> call, Throwable t) {
-                Log.d("Notifikasi", "onFailure: " + t.getMessage());
-            }
-        });
-    }
-
 
     private void configureMessage() {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -805,9 +653,6 @@ public class BookingActivity extends BaseActivity {
                 startActivity(new Intent(BookingActivity.this, RiwayatBookingActivity.class));
                 finish();
             } else if (code == 100) {
-                AntrianFlagging itemAntrianFlagging = Preferences.getAntrianFlagging(getApplicationContext());
-                startCountDown(itemAntrianFlagging);
-
                 startActivity(new Intent(BookingActivity.this, RiwayatBookingActivity.class));
             } else {
                 bottomSheetDialog.dismiss();
@@ -849,7 +694,6 @@ public class BookingActivity extends BaseActivity {
         action_positif.setOnClickListener(view -> {
             if (code == 200) {
                 bottomSheetDialog.dismiss();
-
                 prosesSubmitAntrian();
             } else {
                 bottomSheetDialog.dismiss();
