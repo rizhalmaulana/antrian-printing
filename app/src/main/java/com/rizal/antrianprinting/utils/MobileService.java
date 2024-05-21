@@ -20,7 +20,7 @@ import retrofit2.http.Path;
 
 public interface MobileService {
     @FormUrlEncoded
-    @POST("login")
+    @POST("login-mobile")
     Call<Responses> login(@FieldMap Map<String, String> map);
 
     @GET("get-layanan")
@@ -43,7 +43,7 @@ public interface MobileService {
     Call<Responses> cancelantrian(@Path("id") Integer id);
 
     @FormUrlEncoded
-    @POST("notification")
+    @POST("push-notification")
     Call<Responses> pushNotification(@FieldMap Map<String, String> map);
 
     @FormUrlEncoded
