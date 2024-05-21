@@ -46,6 +46,7 @@ public class RegistrationActivity extends BaseActivity {
 
     boolean doubleBackToExitPress = false;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

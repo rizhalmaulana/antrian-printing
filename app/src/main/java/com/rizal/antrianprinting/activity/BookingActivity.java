@@ -240,11 +240,12 @@ public class BookingActivity extends BaseActivity {
                 Responses body = response.body();
                 Log.d("Get Error Response", "onResponse: " + response.message());
                 if (response.isSuccessful()) {
-                    assert body != null;
-                    if (!body.isStatus() && body.getCode() != 200) {
-                        showBottomSheet("Informasi", body.getMessage(), R.drawable.ic_profil_user, "Oke", "Kembali", body.getCode());
-                    } else {
-                        showBottomSheet("Informasi", body.getMessage(), R.drawable.ic_location, "Konfirmasi", "Batal", body.getCode());
+                    if (body != null) {
+                        if (!body.isStatus() && body.getCode() != 200) {
+                            showBottomSheet("Informasi", body.getMessage(), R.drawable.ic_profil_user, "Oke", "Kembali", body.getCode());
+                        } else {
+                            showBottomSheet("Informasi", body.getMessage(), R.drawable.ic_location, "Konfirmasi", "Batal", body.getCode());
+                        }
                     }
                 } else {
                     Log.d("Failure Cek Antrian", "onFailure: " + response.errorBody());

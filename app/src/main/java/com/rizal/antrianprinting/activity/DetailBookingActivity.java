@@ -58,12 +58,14 @@ public class DetailBookingActivity extends AppCompatActivity {
         String waktuBooking = intentExtra.getExtras().getString("jam_booking");
         String waktuSelesai = intentExtra.getExtras().getString("jam_selesai");
         String tglPesanan = intentExtra.getExtras().getString("tgl_pesanan");
+        String handphone = intentExtra.getExtras().getString("handphone");
         String statusPesanan = intentExtra.getExtras().getString("status");
 
         txtNamaDesigner.setText(namaDesign);
         txtWaktuBooking.setText(waktuBooking);
         txtWaktuSelesai.setText(waktuSelesai);
         txtJenisLayanan.setText(jenisLayanan);
+        txtHandphone.setText(handphone);
         txtTglPesanan.setText(tglPesanan);
 
         if (statusPesanan.equals("Batal") || statusPesanan.equals("Berhasil")) {
