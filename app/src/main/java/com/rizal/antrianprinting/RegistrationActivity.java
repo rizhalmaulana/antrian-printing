@@ -170,13 +170,13 @@ public class RegistrationActivity extends BaseActivity {
                         dismissProgressDialog();
 
                         Log.d("Registration", "body: " + body.getMessage());
-                        showBottomSheet("Informasi", body.getMessage(), R.drawable.ic_profil_user, "Mengerti", "");
+                        showBottomSheet("Informasi", "Terjadi kesalahan, " + body.getMessage(), R.drawable.ic_profil_user, "Mengerti", "");
                     }
                 } else {
                     dismissProgressDialog();
 
                     Log.d("Registration", "body: " + response.errorBody());
-                    showBottomSheet("Informasi", response.message(), R.drawable.ic_profil_user, "Mengerti", "");
+                    showBottomSheet("Informasi", "Terjadi kesalahan, " + response.message(), R.drawable.ic_profil_user, "Mengerti", "");
                 }
             }
 
@@ -185,7 +185,7 @@ public class RegistrationActivity extends BaseActivity {
                 dismissProgressDialog();
 
                 Log.d("Registration", "body: " + t.getMessage());
-                showBottomSheet("Informasi", t.getMessage(), R.drawable.ic_profil_user, "Mengerti", "");
+                showBottomSheet("Informasi", "Gagal melakukan registrasi, " + t.getMessage(), R.drawable.ic_profil_user, "Mengerti", "");
             }
         });
     }
